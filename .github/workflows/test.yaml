@@ -9,29 +9,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: swift:noble
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      - name: Install OpenRGB
+      - name: Start OpenRGB server
         run: |
-          apt-get install -y wget libfuse2 i2c-tools libusb-1.0-0 libhidapi-dev libmbedtls-dev libqt5gui5
-          wget https://codeberg.org/OpenRGB/OpenRGB/releases/download/release_candidate_1.0rc2/OpenRGB_1.0rc2_x86_64_0fca93e.AppImage
-          chmod a+x OpenRGB_1.0rc2_x86_64_0fca93e.AppImage
-          ./OpenRGB_1.0rc2_x86_64_0fca93e.AppImage --server &
-      - name: Set up udev rules
-        run: |
-          # Download udev rules file
-          wget https://openrgb.org/releases/release_0.9/60-openrgb.rules
-
-          # Move udev rules file to udev rules directory
-          mv 60-openrgb.rules /usr/lib/udev/rules.d
-
-          # Reload the rules
-          udevadm control --reload-rules
-          udevadm trigger
+          docker build -t openrgb-server -f Containerfile .
+          docker run -d --name openrgb -p 6742:6742 openrgb-server
+          sleep 10
       - name: Run Swift tests
-        env:
-          OPENRGB_HOST: localhost
-          OPENRGB_PORT: 6742
-        run: swift test
+        run: |
+          docker run --rm \
+            --network host \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            -e OPENRGB_HOST=localhost \
+            -e OPENRGB_PORT=6742 \
+            swift:noble \
+            swift test
