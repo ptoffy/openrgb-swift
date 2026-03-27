@@ -164,7 +164,6 @@ extension OpenRGBNetPacketHeader {
 }
 
 extension RawSpan {
-    @_lifetime(&self)
     mutating func extractFirstUInt32() -> UInt32 {
         let value = unsafeLoadUnaligned(as: UInt32.self)
         self = self.extracting(droppingFirst: 4)
