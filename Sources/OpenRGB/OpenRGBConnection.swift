@@ -2,7 +2,13 @@ import Logging
 import NIOCore
 import NIOPosix
 
+/// A connection to an OpenRGB server.
+///
+/// Use ``withConnection(to:port:logger:maxVersion:clientName:closure:)`` for automatic
+/// lifecycle management, or ``connect(to:port:logger:maxVersion:clientName:)`` to manage
+/// the connection manually.
 public struct OpenRGBConnection: Sendable {
+    /// The default maximum OpenRGB SDK protocol version to negotiate.
     public static let defaultMaxVersion = 5
 
     let logger: Logger
@@ -12,6 +18,15 @@ public struct OpenRGBConnection: Sendable {
     let handler: OpenRGBChannelHandler
     let channel: Channel
 
+    /// Connects to an OpenRGB server, runs the provided closure, then disconnects.
+    ///
+    /// - Parameters:
+    ///   - host: The hostname or IP address of the OpenRGB server.
+    ///   - port: The port the server is listening on.
+    ///   - logger: The logger to use for connection diagnostics.
+    ///   - maxVersion: The maximum SDK protocol version to negotiate. Must be in `0...5`.
+    ///   - clientName: The client name sent to the server during the handshake.
+    ///   - closure: An async closure that receives the open connection.
     public static func withConnection(
         to host: String = "localhost",
         port: Int = 6742,
@@ -31,6 +46,15 @@ public struct OpenRGBConnection: Sendable {
         try await connection.disconnect()
     }
 
+    /// Opens a TCP connection to an OpenRGB server and negotiates the protocol version.
+    ///
+    /// - Parameters:
+    ///   - host: The hostname or IP address of the OpenRGB server.
+    ///   - port: The port the server is listening on.
+    ///   - logger: The logger to use for connection diagnostics.
+    ///   - maxVersion: The maximum SDK protocol version to negotiate. Must be in `0...5`.
+    ///   - clientName: The client name sent to the server during the handshake.
+    /// - Returns: An open connection ready to accept requests.
     public static func connect(
         to host: String = "localhost",
         port: Int = 6742,
@@ -104,6 +128,7 @@ public struct OpenRGBConnection: Sendable {
         try await self.channel.send(packet: packet, version: version, timeout: timeout, logger: logger)
     }
 
+    /// Closes the connection to the OpenRGB server.
     public func disconnect() async throws { try await self.channel.close() }
 }
 

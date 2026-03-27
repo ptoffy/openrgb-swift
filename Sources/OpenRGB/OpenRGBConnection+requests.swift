@@ -3,6 +3,7 @@ import struct NIOCore.ByteBuffer
 
 extension OpenRGBConnection {
     // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#net_packet_id_request_controller_count
+    /// Requests the number of RGB controllers available on the server.
     public func requestControllerCount() async throws -> Int {
         let controllerCount = try await self.request(
             packet: .init(.requestControllerCount),
@@ -12,6 +13,9 @@ extension OpenRGBConnection {
     }
 
     // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#net_packet_id_request_controller_data
+    /// Requests data for a specific RGB controller.
+    ///
+    /// - Parameter deviceIndex: The zero-based index of the controller.
     public func requestControllerData(deviceIndex: UInt32) async throws -> OpenRGBControllerData {
         let packet =
             if version == 0 {
@@ -30,6 +34,7 @@ extension OpenRGBConnection {
         return try await self.request(packet: packet)
     }
 
+    /// Requests data for all RGB controllers, populating each result's `deviceIndex`.
     public func requestAllControllersData() async throws -> [OpenRGBControllerData] {
         var data: [OpenRGBControllerData] = []
         let controllerCount = try await self.requestControllerCount()
@@ -42,6 +47,10 @@ extension OpenRGBConnection {
     }
 
     // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#net_packet_id_request_protocol_version
+    /// Negotiates the SDK protocol version with the server.
+    ///
+    /// - Parameter minVersion: The minimum acceptable protocol version. Must be in `0..<5`.
+    /// - Returns: The negotiated protocol version.
     public func requestProtocolVersion(minVersion: Int = 5) async throws -> Int {
         guard minVersion >= 0 && minVersion < 5 else {
             throw OpenRGBError.invalidVersion(minVersion)
@@ -68,16 +77,23 @@ extension OpenRGBConnection {
     }
 
     // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#net_packet_id_request_rescan_devices
+    /// Asks the server to rescan for RGB devices.
     public func requestRescanDevices() async throws {
         try await self.request(packet: .init(.requestRescanDevices))
     }
 
     // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#net_packet_id_request_profile_list
+    /// Requests the list of saved color profiles from the server.
     public func requestProfileList() async throws -> [OpenRGBProfile] {
         try await self.request(packet: .init(.requestProfileList))
     }
 
     // https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md#net_packet_id_rgbcontroller_updateleds
+    /// Updates all LED colors on a controller.
+    ///
+    /// - Parameters:
+    ///   - deviceIndex: The zero-based index of the controller.
+    ///   - body: The colors to apply to each LED.
     public func rgbControllerUpdateLEDs(deviceIndex: UInt32, body: OpenRGBControllerUpdateLEDs) async throws {
         var buffer = ByteBuffer()
         body.encode(into: &buffer)
@@ -87,6 +103,11 @@ extension OpenRGBConnection {
     }
 
     // https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md#net_packet_id_rgbcontroller_updatezoneleds
+    /// Updates all LED colors within a specific zone on a controller.
+    ///
+    /// - Parameters:
+    ///   - deviceIndex: The zero-based index of the controller.
+    ///   - body: The zone index and colors to apply.
     public func rgbControllerUpdateZoneLEDs(deviceIndex: UInt32, body: OpenRGBControllerUpdateZoneLEDs) async throws {
         var buffer = ByteBuffer()
         body.encode(into: &buffer)
@@ -96,6 +117,11 @@ extension OpenRGBConnection {
     }
 
     // https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md#net_packet_id_rgbcontroller_resizezone
+    /// Resizes a zone on a controller.
+    ///
+    /// - Parameters:
+    ///   - deviceIndex: The zero-based index of the controller.
+    ///   - body: The zone index and the new LED count.
     public func rgbControllerResizeZone(deviceIndex: UInt32, body: OpenRGBControllerZoneResize) async throws {
         var buffer = ByteBuffer()
         try body.encode(into: &buffer)

@@ -1,5 +1,6 @@
 import struct NIOCore.ByteBuffer
 
+/// A 24-bit RGB color value.
 public struct RGBColor: OpenRGBCodable, Codable {
     let r: UInt8
     let g: UInt8

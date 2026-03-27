@@ -1,4 +1,6 @@
+/// A saved color profile stored on the OpenRGB server.
 public struct OpenRGBProfile: Sendable, Codable {
+    /// The name of the profile.
     public let name: String
 }
 

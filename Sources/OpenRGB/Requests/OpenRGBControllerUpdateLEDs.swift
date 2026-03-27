@@ -1,8 +1,12 @@
 import struct NIOCore.ByteBuffer
 
+/// Request body for updating all LED colors on a controller.
 public struct OpenRGBControllerUpdateLEDs: OpenRGBEncodable {
     let ledColors: [RGBColor]
 
+    /// Creates a request with the given LED colors.
+    ///
+    /// - Parameter ledColors: Colors for each LED, in order.
     public init(ledColors: [RGBColor]) {
         self.ledColors = ledColors
     }

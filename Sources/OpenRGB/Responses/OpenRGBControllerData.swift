@@ -1,20 +1,37 @@
 // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#response-size-variable
+/// Data describing an RGB controller returned by the server.
 public struct OpenRGBControllerData: OpenRGBResponse, Codable {
+    /// The zero-based index of this controller among all controllers on the server.
     public var deviceIndex: UInt32 = 0
+    /// The byte length of the serialized controller data.
     public let dataSize: UInt32
+    /// The device type identifier.
     public let type: Int32
+    /// The human-readable name of the device.
     public let name: String
+    /// The vendor name, if reported by the device (protocol v1+).
     public let vendor: String?
+    /// A description of the device.
     public let description: String
+    /// The firmware or driver version string.
     public let version: String
+    /// The serial number of the device.
     public let serial: String
+    /// The physical or logical location of the device.
     public let location: String
+    /// The index of the currently active lighting mode.
     public let activeMode: Int32
+    /// The lighting modes supported by this controller.
     public let modes: [Mode]
+    /// The LED zones defined on this controller.
     public let zones: [Zone]
+    /// The individual LEDs on this controller.
     public let leds: [LED]
+    /// The current color of each LED.
     public let colors: [RGBColor]
+    /// Alternate names for LEDs (protocol v5+).
     public let ledAlternateNames: [LEDAlternateName]?
+    /// Controller-level feature flags.
     public let flags: UInt32
 
     init(from body: inout OpenRGBPacket.Body, protocolVersion: UInt32) throws {
@@ -87,6 +104,7 @@ public struct OpenRGBControllerData: OpenRGBResponse, Codable {
     }
 
     // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#mode-data
+    /// A lighting mode supported by a controller.
     public struct Mode: OpenRGBDecodable, Codable {
         let name: String
         let value: Int32
@@ -138,6 +156,7 @@ public struct OpenRGBControllerData: OpenRGBResponse, Codable {
         }
     }
 
+    /// A named grouping of LEDs within a controller.
     public struct Zone: OpenRGBDecodable, Codable {
         let name: String
         let type: Int32
@@ -215,6 +234,7 @@ public struct OpenRGBControllerData: OpenRGBResponse, Codable {
         }
     }
 
+    /// An individual LED on a controller.
     public struct LED: OpenRGBDecodable, Codable {
         let name: String
         let value: UInt32
@@ -227,6 +247,7 @@ public struct OpenRGBControllerData: OpenRGBResponse, Codable {
         }
     }
 
+    /// An alternate name for an LED, available in protocol v5+.
     public struct LEDAlternateName: OpenRGBDecodable, Codable {
         let name: String
 
