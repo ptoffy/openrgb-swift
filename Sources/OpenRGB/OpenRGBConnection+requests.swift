@@ -1,4 +1,5 @@
 import Logging
+import struct NIOCore.ByteBuffer
 
 extension OpenRGBConnection {
     // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#net_packet_id_request_controller_count
@@ -33,7 +34,9 @@ extension OpenRGBConnection {
         var data: [OpenRGBControllerData] = []
         let controllerCount = try await self.requestControllerCount()
         for i in 0..<UInt32(controllerCount) {
-            try await data.append(self.requestControllerData(deviceIndex: i))
+            var controller = try await self.requestControllerData(deviceIndex: i)
+            controller.deviceIndex = i
+            data.append(controller)
         }
         return data
     }
@@ -72,5 +75,32 @@ extension OpenRGBConnection {
     // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#net_packet_id_request_profile_list
     public func requestProfileList() async throws -> [OpenRGBProfile] {
         try await self.request(packet: .init(.requestProfileList))
+    }
+
+    // https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md#net_packet_id_rgbcontroller_updateleds
+    public func rgbControllerUpdateLEDs(deviceIndex: UInt32, body: OpenRGBControllerUpdateLEDs) async throws {
+        var buffer = ByteBuffer()
+        body.encode(into: &buffer)
+        try await self.request(
+            packet: .init(.rgbControllerUpdateLEDs, deviceIndex: deviceIndex, body: buffer)
+        )
+    }
+
+    // https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md#net_packet_id_rgbcontroller_updatezoneleds
+    public func rgbControllerUpdateZoneLEDs(deviceIndex: UInt32, body: OpenRGBControllerUpdateZoneLEDs) async throws {
+        var buffer = ByteBuffer()
+        body.encode(into: &buffer)
+        try await self.request(
+            packet: .init(.rgbControllerUpdateZoneLEDs, deviceIndex: deviceIndex, body: buffer)
+        )
+    }
+
+    // https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md#net_packet_id_rgbcontroller_resizezone
+    public func rgbControllerResizeZone(deviceIndex: UInt32, body: OpenRGBControllerZoneResize) async throws {
+        var buffer = ByteBuffer()
+        try body.encode(into: &buffer)
+        try await self.request(
+            packet: .init(.rgbControllerResizeZone, deviceIndex: deviceIndex, body: buffer)
+        )
     }
 }

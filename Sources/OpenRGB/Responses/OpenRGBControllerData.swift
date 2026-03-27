@@ -1,5 +1,6 @@
 // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#response-size-variable
 public struct OpenRGBControllerData: OpenRGBResponse, Codable {
+    public var deviceIndex: UInt32 = 0
     public let dataSize: UInt32
     public let type: Int32
     public let name: String
@@ -223,19 +224,6 @@ public struct OpenRGBControllerData: OpenRGBResponse, Codable {
             self.name = try body.requireString(length: Int(nameCount))
 
             self.value = try body.requireInteger(endianness: .little)
-        }
-    }
-
-    public struct RGBColor: OpenRGBDecodable, Codable {
-        let r: UInt8
-        let g: UInt8
-        let b: UInt8
-
-        init(from body: inout OpenRGBPacket.Body, protocolVersion: UInt32) throws {
-            self.r = try body.requireInteger(endianness: .little)
-            self.g = try body.requireInteger(endianness: .little)
-            self.b = try body.requireInteger(endianness: .little)
-            let _: UInt8 = try body.requireInteger()  // padding byte
         }
     }
 

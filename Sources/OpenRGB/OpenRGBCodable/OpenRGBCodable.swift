@@ -1,0 +1,1 @@
+typealias OpenRGBCodable = OpenRGBEncodable & OpenRGBDecodable

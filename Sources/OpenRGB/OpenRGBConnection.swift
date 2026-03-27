@@ -86,7 +86,7 @@ public struct OpenRGBConnection: Sendable {
     func request<Response: OpenRGBResponse>(
         packet: OpenRGBPacket,
         decoding: Response.Type = Response.self,
-        timeout: TimeAmount = .seconds(3)
+        timeout: TimeAmount = .seconds(10)
     ) async throws -> Response {
         try await self.channel.send(
             packet: packet,
@@ -99,7 +99,7 @@ public struct OpenRGBConnection: Sendable {
 
     func request(
         packet: OpenRGBPacket,
-        timeout: TimeAmount = .seconds(3)
+        timeout: TimeAmount = .seconds(10)
     ) async throws {
         try await self.channel.send(packet: packet, version: version, timeout: timeout, logger: logger)
     }
