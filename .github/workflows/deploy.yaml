@@ -1,0 +1,24 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: native
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t openrgb -f Containerfile .
+
+      - name: Restart container
+        run: |
+          docker rm -f openrgb 2>/dev/null || true
+          docker run -d \
+            --name openrgb \
+            --restart unless-stopped \
+            -p 6742:6742 \
+            openrgb
