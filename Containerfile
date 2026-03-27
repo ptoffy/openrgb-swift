@@ -8,11 +8,12 @@ ENV LOG_LEVEL=debug
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     wget \
-    ca-certificates \
     i2c-tools \
     libusb-1.0-0 \
-    libhidapi-hidraw0 \
-    libmbedtls14 \
+    libhidapi-dev \
+    libmbedtls-dev \
+    libqt5gui5 \
+    ca-certificates \
     kmod \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
