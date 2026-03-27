@@ -53,8 +53,6 @@ try await OpenRGBConnection.withConnection { connection in
         )
     }
     
-    
-    
     try await connection.rgbControllerUpdateLEDs(
         deviceIndex: first.deviceIndex,
         body: OpenRGBControllerUpdateLEDs(ledColors: colors)
