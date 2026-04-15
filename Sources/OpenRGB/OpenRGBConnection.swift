@@ -1,4 +1,4 @@
-import Logging
+public import Logging
 import NIOCore
 import NIOPosix
 
@@ -16,7 +16,7 @@ public struct OpenRGBConnection: Sendable {
     let version: UInt32
 
     let handler: OpenRGBChannelHandler
-    let channel: Channel
+    let channel: any Channel
 
     /// Connects to an OpenRGB server, runs the provided closure, then disconnects.
     ///
@@ -66,7 +66,7 @@ public struct OpenRGBConnection: Sendable {
             throw OpenRGBConnectionError.maxVersionNotInRange
         }
         let channelHandler = OpenRGBChannelHandler(logger: logger)
-        let eventLoopGroup: EventLoopGroup = .singletonMultiThreadedEventLoopGroup
+        let eventLoopGroup: any EventLoopGroup = .singletonMultiThreadedEventLoopGroup
         let client = ClientBootstrap(group: eventLoopGroup)
             // allow the channel's address to be reused when it's in TIME_WAIT state
             .channelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
