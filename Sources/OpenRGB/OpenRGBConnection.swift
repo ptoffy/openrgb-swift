@@ -27,14 +27,14 @@ public struct OpenRGBConnection: Sendable {
     ///   - maxVersion: The maximum SDK protocol version to negotiate. Must be in `0...5`.
     ///   - clientName: The client name sent to the server during the handshake.
     ///   - closure: An async closure that receives the open connection.
-    public static func withConnection(
+    public static func withConnection<Value>(
         to host: String = "localhost",
         port: Int = 6742,
         logger: Logger = .init(label: "swift.openrgb.logger"),
         maxVersion: Int = Self.defaultMaxVersion,
         clientName: String = "openrgb.swift",
-        closure: sending (Self) async throws -> Void,
-    ) async throws {
+        closure: (Self) async throws -> Value,
+    ) async throws -> Value {
         let connection = try await Self.connect(
             to: host,
             port: port,
@@ -42,8 +42,14 @@ public struct OpenRGBConnection: Sendable {
             maxVersion: maxVersion,
             clientName: clientName
         )
-        try await closure(connection)
-        try await connection.disconnect()
+        do {
+            let value = try await closure(connection)
+            try await connection.disconnect()
+            return value
+        } catch {
+            try await connection.disconnect()
+            throw error
+        }
     }
 
     /// Opens a TCP connection to an OpenRGB server and negotiates the protocol version.
