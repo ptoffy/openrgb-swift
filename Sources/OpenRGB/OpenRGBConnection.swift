@@ -27,6 +27,8 @@ public struct OpenRGBConnection: Sendable {
     ///   - maxVersion: The maximum SDK protocol version to negotiate. Must be in `0...5`.
     ///   - clientName: The client name sent to the server during the handshake.
     ///   - closure: An async closure that receives the open connection.
+    /// - Returns: The value returned by the closure.
+    /// - Throws: Any error thrown by the closure or the connection process.
     public static func withConnection<Value>(
         to host: String = "localhost",
         port: Int = 6742,
@@ -61,6 +63,7 @@ public struct OpenRGBConnection: Sendable {
     ///   - maxVersion: The maximum SDK protocol version to negotiate. Must be in `0...5`.
     ///   - clientName: The client name sent to the server during the handshake.
     /// - Returns: An open connection ready to accept requests.
+    /// - Throws: Any error that occurs during connection or protocol negotiation.
     public static func connect(
         to host: String = "localhost",
         port: Int = 6742,
