@@ -1,3 +1,5 @@
+import struct NIOCore.ByteBuffer
+
 // https://gitlab.com/CalcProgrammer1/OpenRGB/-/blob/master/Documentation/OpenRGBSDK.md?ref_type=heads#response-size-variable
 /// Data describing an RGB controller returned by the server.
 public struct OpenRGBControllerData: OpenRGBResponse, Codable {

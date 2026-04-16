@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.91.0"),
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.7.1"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.12.0"),
     ],
     targets: [
         .target(
@@ -24,16 +24,15 @@ let package = Package(
                 .product(name: "NIOPosix", package: "swift-nio"),
                 .product(name: "Logging", package: "swift-log"),
             ],
-            swiftSettings: [
-                .enableExperimentalFeature("Lifetimes")
-            ],
+            swiftSettings: swiftSettings
         ),
         .testTarget(
             name: "OpenRGBTests",
             dependencies: [
                 "OpenRGB",
                 .product(name: "NIOCore", package: "swift-nio"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
     ]
 )
@@ -50,5 +49,6 @@ var swiftSettings: [SwiftSetting] {
         .enableExperimentalFeature("SuppressedAssociatedTypes"),
         .enableExperimentalFeature("LifetimeDependence"),
         .enableUpcomingFeature("LifetimeDependence"),
+        .enableExperimentalFeature("Lifetimes"),
     ]
 }

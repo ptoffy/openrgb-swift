@@ -16,6 +16,8 @@ extension OpenRGBConnection {
     /// Requests data for a specific RGB controller.
     ///
     /// - Parameter deviceIndex: The zero-based index of the controller.
+    /// - Returns: The controller data.
+    /// - Throws: An error if the request fails.
     public func requestControllerData(deviceIndex: UInt32) async throws -> OpenRGBControllerData {
         let packet =
             if version == 0 {
@@ -51,6 +53,7 @@ extension OpenRGBConnection {
     ///
     /// - Parameter minVersion: The minimum acceptable protocol version. Must be in `0..<5`.
     /// - Returns: The negotiated protocol version.
+    /// - Throws: An error if the request fails or if `minVersion` is out of range.
     public func requestProtocolVersion(minVersion: Int = 5) async throws -> Int {
         guard minVersion >= 0 && minVersion < 5 else {
             throw OpenRGBError.invalidVersion(minVersion)
@@ -94,6 +97,7 @@ extension OpenRGBConnection {
     /// - Parameters:
     ///   - deviceIndex: The zero-based index of the controller.
     ///   - body: The colors to apply to each LED.
+    /// - Throws: An error if the request fails.
     public func rgbControllerUpdateLEDs(deviceIndex: UInt32, body: OpenRGBControllerUpdateLEDs) async throws {
         var buffer = ByteBuffer()
         body.encode(into: &buffer)
@@ -108,6 +112,7 @@ extension OpenRGBConnection {
     /// - Parameters:
     ///   - deviceIndex: The zero-based index of the controller.
     ///   - body: The zone index and colors to apply.
+    /// - Throws: An error if the request fails.
     public func rgbControllerUpdateZoneLEDs(deviceIndex: UInt32, body: OpenRGBControllerUpdateZoneLEDs) async throws {
         var buffer = ByteBuffer()
         body.encode(into: &buffer)
@@ -122,6 +127,7 @@ extension OpenRGBConnection {
     /// - Parameters:
     ///   - deviceIndex: The zero-based index of the controller.
     ///   - body: The zone index and the new LED count.
+    /// - Throws: An error if the request fails.
     public func rgbControllerResizeZone(deviceIndex: UInt32, body: OpenRGBControllerZoneResize) async throws {
         var buffer = ByteBuffer()
         try body.encode(into: &buffer)

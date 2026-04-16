@@ -1,4 +1,4 @@
-import Logging
+public import Logging
 import NIOCore
 import NIOPosix
 
@@ -16,7 +16,7 @@ public struct OpenRGBConnection: Sendable {
     let version: UInt32
 
     let handler: OpenRGBChannelHandler
-    let channel: Channel
+    let channel: any Channel
 
     /// Connects to an OpenRGB server, runs the provided closure, then disconnects.
     ///
@@ -27,14 +27,16 @@ public struct OpenRGBConnection: Sendable {
     ///   - maxVersion: The maximum SDK protocol version to negotiate. Must be in `0...5`.
     ///   - clientName: The client name sent to the server during the handshake.
     ///   - closure: An async closure that receives the open connection.
-    public static func withConnection(
+    /// - Returns: The value returned by the closure.
+    /// - Throws: Any error thrown by the closure or the connection process.
+    public static func withConnection<Value>(
         to host: String = "localhost",
         port: Int = 6742,
         logger: Logger = .init(label: "swift.openrgb.logger"),
         maxVersion: Int = Self.defaultMaxVersion,
         clientName: String = "openrgb.swift",
-        closure: sending (Self) async throws -> Void,
-    ) async throws {
+        closure: (Self) async throws -> Value,
+    ) async throws -> Value {
         let connection = try await Self.connect(
             to: host,
             port: port,
@@ -42,8 +44,14 @@ public struct OpenRGBConnection: Sendable {
             maxVersion: maxVersion,
             clientName: clientName
         )
-        try await closure(connection)
-        try await connection.disconnect()
+        do {
+            let value = try await closure(connection)
+            try await connection.disconnect()
+            return value
+        } catch {
+            try await connection.disconnect()
+            throw error
+        }
     }
 
     /// Opens a TCP connection to an OpenRGB server and negotiates the protocol version.
@@ -55,6 +63,7 @@ public struct OpenRGBConnection: Sendable {
     ///   - maxVersion: The maximum SDK protocol version to negotiate. Must be in `0...5`.
     ///   - clientName: The client name sent to the server during the handshake.
     /// - Returns: An open connection ready to accept requests.
+    /// - Throws: Any error that occurs during connection or protocol negotiation.
     public static func connect(
         to host: String = "localhost",
         port: Int = 6742,
@@ -66,7 +75,7 @@ public struct OpenRGBConnection: Sendable {
             throw OpenRGBConnectionError.maxVersionNotInRange
         }
         let channelHandler = OpenRGBChannelHandler(logger: logger)
-        let eventLoopGroup: EventLoopGroup = .singletonMultiThreadedEventLoopGroup
+        let eventLoopGroup: any EventLoopGroup = .singletonMultiThreadedEventLoopGroup
         let client = ClientBootstrap(group: eventLoopGroup)
             // allow the channel's address to be reused when it's in TIME_WAIT state
             .channelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)

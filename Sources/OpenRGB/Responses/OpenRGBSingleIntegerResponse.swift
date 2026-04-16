@@ -1,3 +1,5 @@
+import struct NIOCore.ByteBuffer
+
 // https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md#response-size-4
 // https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md#response-size-4-1
 typealias OpenRGBSingleIntegerResponse = UInt32
