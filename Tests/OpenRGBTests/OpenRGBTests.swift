@@ -4,7 +4,7 @@ import OpenRGB
 import Logging
 import Foundation
 
-@Suite("OpenRGB Tests", .serialized)
+@Suite("OpenRGB Tests")
 struct OpenRGBTests {
     let host: String
     let port: Int
@@ -38,7 +38,7 @@ struct OpenRGBTests {
 
     @Test("Request profile list")
     func requestProfileList() async throws {
-        try await OpenRGBConnection.withConnection(to: host, port: port) { connection in
+        try await OpenRGBConnection.withConnection(to: host, port: port, logger: logger) { connection in
             let list = try await connection.requestProfileList()
             #expect(list.isEmpty)
         }

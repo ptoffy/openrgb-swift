@@ -7,8 +7,15 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  linux-unit:
+    name: Linux Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        tag:
+          - swift:6.2
+          - swift:6.3
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -25,5 +32,35 @@ jobs:
             -w /workspace \
             -e OPENRGB_HOST=localhost \
             -e OPENRGB_PORT=6742 \
-            swift:noble \
+            ${{ matrix.tag }} \
             swift test
+
+  android-build:
+    name: Android Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Build for Android
+        uses: skiptools/swift-android-action@v2
+        with:
+          build-tests: true
+          run-tests: false
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    container: swift:noble
+    timeout-minutes: 5
+    steps:
+      - name: Configure git
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Lint
+        run: |
+          apt -q update && apt -yq install curl
+          curl -s https://raw.githubusercontent.com/swiftlang/github-workflows/refs/heads/main/.github/workflows/scripts/check-swift-format.sh | bash
